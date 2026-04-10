@@ -1,5 +1,18 @@
-results
-results/*
+# Robot Framework generated files
+log.html
+report.html
+output.html
+output.xml
+*.log
+playwright-log.txt
+
+results/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

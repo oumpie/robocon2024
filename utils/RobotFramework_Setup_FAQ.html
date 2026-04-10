@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Robot Framework Setup FAQ — SBG Quality Engineering</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --teal:    #00C9C8;
+    --teal-d:  #00A3A1;
+    --navy:    #0A0F1E;
+    --navy2:   #0D1526;
+    --navy3:   #121D35;
+    --panel:   #0F1A2E;
+    --border:  rgba(0,201,200,0.18);
+    --white:   #F0F6FF;
+    --grey:    #8899AA;
+    --green:   #39D98A;
+    --red:     #FF5C6C;
+    --amber:   #FFBB38;
+    --code-bg: #060C18;
+    --mono:    'JetBrains Mono', monospace;
+    --sans:    'Syne', sans-serif;
+    --body:    'Inter', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--body);
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ─────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,201,200,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,201,200,.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── GLOW ────────────────────────────────────────────────── */
+  .glow-orb {
+    position: fixed;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,201,200,.12) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .glow-orb.top    { top: -150px; right: -100px; }
+  .glow-orb.bottom { bottom: -200px; left: -150px; background: radial-gradient(circle, rgba(0,43,92,.25) 0%, transparent 70%); }
+
+  /* ── LAYOUT ──────────────────────────────────────────────── */
+  .wrapper {
+    position: relative; z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── HERO HEADER ─────────────────────────────────────────── */
+  header {
+    padding: 60px 0 48px;
+    text-align: center;
+    position: relative;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,201,200,.1);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 5px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--teal);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeDown .6s ease both;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    background: linear-gradient(135deg, var(--white) 0%, var(--teal) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeDown .7s .1s ease both;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--grey);
+    font-weight: 300;
+    animation: fadeDown .7s .2s ease both;
+    margin-bottom: 32px;
+  }
+
+  /* ── STAT PILLS ──────────────────────────────────────────── */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    animation: fadeDown .7s .3s ease both;
+    margin-bottom: 48px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--teal);
+    display: block;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--grey);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  /* ── NAV ─────────────────────────────────────────────────── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,15,30,.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    margin: 0 -24px 40px;
+    overflow-x: auto;
+  }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+    white-space: nowrap;
+  }
+  .nav-inner a {
+    display: inline-block;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--grey);
+    text-decoration: none;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  .nav-inner a:hover {
+    color: var(--teal);
+    border-bottom-color: var(--teal);
+  }
+
+  /* ── SECTION ─────────────────────────────────────────────── */
+  .section {
+    margin-bottom: 48px;
+    animation: fadeUp .6s ease both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    width: 32px; height: 32px;
+    background: var(--teal);
+    color: var(--navy);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -.01em;
+  }
+
+  /* ── FAQ CARD ────────────────────────────────────────────── */
+  .faq-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    transition: border-color .25s, box-shadow .25s;
+  }
+  .faq-card:hover {
+    border-color: rgba(0,201,200,.4);
+    box-shadow: 0 0 24px rgba(0,201,200,.06);
+  }
+
+  .faq-trigger {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 18px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    text-align: left;
+  }
+
+  .q-num {
+    width: 26px; height: 26px;
+    background: rgba(0,201,200,.15);
+    border: 1px solid var(--teal-d);
+    color: var(--teal);
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .q-text {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .chevron {
+    width: 20px; height: 20px;
+    color: var(--grey);
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: transform .3s ease;
+  }
+  .faq-card.open .chevron { transform: rotate(180deg); }
+
+  .faq-body {
+    display: none;
+    padding: 0 20px 20px 60px;
+  }
+  .faq-card.open .faq-body { display: block; }
+
+  /* ── TAGS ────────────────────────────────────────────────── */
+  .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .tag.error  { background: rgba(255,92,108,.12); color: var(--red);   border: 1px solid rgba(255,92,108,.25); }
+  .tag.cause  { background: rgba(255,187,56,.1);  color: var(--amber); border: 1px solid rgba(255,187,56,.2); }
+  .tag.fix    { background: rgba(57,217,138,.1);  color: var(--green); border: 1px solid rgba(57,217,138,.2); }
+
+  /* ── CONTENT BLOCKS ──────────────────────────────────────── */
+  .error-box {
+    background: rgba(255,92,108,.07);
+    border-left: 3px solid var(--red);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: #FF8F99;
+    line-height: 1.6;
+  }
+
+  .cause-box {
+    background: rgba(255,187,56,.06);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #DDBB77;
+    line-height: 1.6;
+  }
+
+  .steps {
+    margin: 0 0 14px 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    color: var(--grey);
+    font-size: 13px;
+    line-height: 1.6;
+    counter-increment: step;
+  }
+  .steps li::before {
+    content: counter(step);
+    width: 20px; height: 20px;
+    background: rgba(0,201,200,.15);
+    color: var(--teal);
+    border-radius: 50%;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .code-block {
+    position: relative;
+    background: var(--code-bg);
+    border: 1px solid rgba(0,201,200,.12);
+    border-radius: 8px;
+    padding: 16px 16px 16px 16px;
+    margin: 10px 0;
+    overflow-x: auto;
+  }
+  .code-block pre {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #A8FF78;
+    line-height: 1.7;
+    white-space: pre;
+  }
+  .code-block .comment { color: #5a6a5a; }
+  .code-block .cmd     { color: #79DCFF; }
+  .code-block .key     { color: var(--teal); }
+  .code-block .val     { color: #FFD070; }
+  .copy-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(0,201,200,.15);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--teal);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 9px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .copy-btn:hover { background: rgba(0,201,200,.25); }
+
+  .note-box {
+    background: rgba(0,201,200,.06);
+    border: 1px dashed rgba(0,201,200,.2);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--grey);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .note-box::before { content: '💡'; flex-shrink: 0; }
+
+  /* ── FOOTER ──────────────────────────────────────────────── */
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--grey);
+  }
+  .footer-brand {
+    font-weight: 700;
+    color: var(--teal);
+  }
+
+  /* ── ANIMATIONS ──────────────────────────────────────────── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: .4; }
+  }
+
+  /* ── SCROLL ANIMATION CLASSES ────────────────────────────── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .55s ease, transform .55s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── PRINT ───────────────────────────────────────────────── */
+  @media print {
+    body::before, .glow-orb, nav { display: none; }
+    .faq-body { display: block !important; }
+    .faq-card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-orb top"></div>
+<div class="glow-orb bottom"></div>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <header>
+    <div class="badge"><span class="badge-dot"></span>SBG Quality Engineering Practice</div>
+    <h1>Robot Framework<br/>Setup FAQ</h1>
+    <p class="subtitle">macOS Dev Environment — Troubleshooting Guide &nbsp;·&nbsp; April 2026</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-num">10</span><span class="stat-label">Issues Resolved</span></div>
+      <div class="stat"><span class="stat-num">6</span><span class="stat-label">Categories</span></div>
+      <div class="stat"><span class="stat-num">1</span><span class="stat-label">Session</span></div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="#s1">01 · GitHub SSH</a>
+      <a href="#s2">02 · Virtual Env</a>
+      <a href="#s3">03 · Poetry</a>
+      <a href="#s4">04 · VSCode</a>
+      <a href="#s5">05 · Robot Syntax</a>
+      <a href="#s6">06 · Platform</a>
+    </div>
+  </nav>
+
+  <!-- SECTION 1 -->
+  <div class="section reveal" id="s1">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title">GitHub SSH Authentication</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="faq-card" id="q1">
+      <button class="faq-trigger" onclick="toggle('q1')">
+        <div class="q-num">Q1</div>
+        <div class="q-text">Permission denied (publickey) when running git clone</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag error">⛔ Error</span>
+          <span class="tag cause">📌 SSH Key</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="error-box">git@github.com: Permission denied (publickey).<br/>fatal: Could not read from remote repository.</div>
+        <div class="cause-box">No SSH key pair existed on the machine — only a <code>known_hosts</code> file was present. GitHub could not authenticate the connection.</div>
+        <ul class="steps">
+          <li>Generate an SSH key pair on your machine</li>
+          <li>Start the SSH agent and register the key</li>
+          <li>Copy the public key to your clipboard</li>
+          <li>Add it to GitHub → Settings → SSH and GPG keys → New SSH key</li>
+          <li>Test the connection, then retry the clone</li>
+        </ul>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="cmd">$</span> ssh-keygen -t ed25519 -C <span class="val">"your@email.com"</span>     <span class="comment"># press Enter x3</span>
+<span class="cmd">$</span> eval <span class="val">"$(ssh-agent -s)"</span>
+<span class="cmd">$</span> ssh-add ~/.ssh/id_ed25519
+<span class="cmd">$</span> pbcopy &lt; ~/.ssh/id_ed25519.pub                  <span class="comment"># paste into GitHub</span>
+<span class="cmd">$</span> ssh -T git@github.com                           <span class="comment"># verify auth</span>
+<span class="cmd">$</span> git clone git@github.com:horzuff/robocon2024.git</pre>
+        </div>
+        <div class="note-box">The response "GitHub does not provide shell access" after authentication is completely normal — it confirms SSH is working.</div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="faq-card" id="q2">
+      <button class="faq-trigger" onclick="toggle('q2')">
+        <div class="q-num">Q2</div>
+        <div class="q-text">ssh-add fails with 'No such file or directory'</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag error">⛔ Error</span>
+          <span class="tag cause">📌 Order of Operations</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="error-box">/Users/gaorutwe.mosala/.ssh/id_ed25519: No such file or directory</div>
+        <div class="cause-box"><code>ssh-add</code> was run before <code>ssh-keygen</code>. The key file does not exist until it is explicitly generated.</div>
+        <ul class="steps">
+          <li>Always run <code>ssh-keygen</code> FIRST — it creates the key file</li>
+          <li>Then run <code>eval "$(ssh-agent -s)"</code> to start the agent</li>
+          <li>Then run <code>ssh-add ~/.ssh/id_ed25519</code> to register the key</li>
+        </ul>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># CORRECT order — generate FIRST, then add</span>
+<span class="cmd">$</span> ssh-keygen -t ed25519 -C <span class="val">"your@email.com"</span>
+<span class="cmd">$</span> eval <span class="val">"$(ssh-agent -s)"</span>
+<span class="cmd">$</span> ssh-add ~/.ssh/id_ed25519</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section reveal" id="s2">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title">Python Virtual Environment</div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="faq-card" id="q3">
+      <button class="faq-trigger" onclick="toggle('q3')">
+        <div class="q-num">Q3</div>
+        <div class="q-text">python -m venv .venv fails with 'No module named venv'</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag error">⛔ Error</span>
+          <span class="tag cause">📌 Python 2.7</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="error-box">/Library/Frameworks/Python.framework/Versions/2.7/.../Python: No module named venv</div>
+        <div class="cause-box">The <code>python</code> alias on macOS points to legacy system Python 2.7, which does not include the <code>venv</code> module. Use <code>python3</code> explicitly.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="cmd">$</span> python3 -m venv .venv           <span class="comment"># use python3, not python</span>
+<span class="cmd">$</span> source .venv/bin/activate        <span class="comment"># activate the environment</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="faq-card" id="q4">
+      <button class="faq-trigger" onclick="toggle('q4')">
+        <div class="q-num">Q4</div>
+        <div class="q-text">How do you confirm the virtual environment is active?</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag cause">📌 Verification</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="cause-box">The Oh My Zsh theme can suppress the <code>(.venv)</code> prompt prefix, making it unclear whether activation succeeded. Run these four checks to confirm.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="cmd">$</span> which python
+<span class="comment">→  .../robocon2024/.venv/bin/python  ✅</span>
+
+<span class="cmd">$</span> python --version
+<span class="comment">→  Python 3.13.x  ✅</span>
+
+<span class="cmd">$</span> which pip
+<span class="comment">→  .../robocon2024/.venv/bin/pip  ✅</span>
+
+<span class="cmd">$</span> echo $VIRTUAL_ENV
+<span class="comment">→  /Users/.../robocon2024/.venv  ✅</span></pre>
+        </div>
+        <div class="note-box">All four commands returning paths inside <code>.venv</code> confirms the environment is fully isolated and active.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section reveal" id="s3">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title">Poetry Dependency Installation</div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="faq-card" id="q5">
+      <button class="faq-trigger" onclick="toggle('q5')">
+        <div class="q-num">Q5</div>
+        <div class="q-text">poetry install fails — Python upper bound incompatibility</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag error">⛔ Error</span>
+          <span class="tag cause">📌 pyproject.toml</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="error-box">The current project's supported Python range (>=3.13) is not compatible with robotframework-pythonlibcore.<br/>robotframework-pythonlibcore requires Python &lt;4,>=3.8 — so it will not be installable for Python >=4.</div>
+        <div class="cause-box"><code>robotframework-pythonlibcore</code> declares a <code>Python &lt;4</code> upper bound. Without a matching upper bound in <code>pyproject.toml</code>, Poetry cannot resolve the dependency graph.</div>
+        <ul class="steps">
+          <li>Open <code>pyproject.toml</code></li>
+          <li>Add <code>,&lt;4</code> to the <code>requires-python</code> field</li>
+          <li>Re-run <code>poetry install</code></li>
+        </ul>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># BEFORE (causes conflict)</span>
+<span class="key">requires-python</span> = <span class="val">">=3.13"</span>
+
+<span class="comment"># AFTER (resolves conflict)</span>
+<span class="key">requires-python</span> = <span class="val">">=3.13,&lt;4"</span>   <span class="comment"># upper bound prevents Python 4 conflict</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="faq-card" id="q6">
+      <button class="faq-trigger" onclick="toggle('q6')">
+        <div class="q-num">Q6</div>
+        <div class="q-text">pyproject.toml parse error — readme path not closed</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag error">⛔ Error</span>
+          <span class="tag cause">📌 TOML Syntax</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="cause-box">A missing closing double-quote on the <code>readme</code> value caused TOML to fail to parse the entire file.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># BROKEN — missing closing quote</span>
+<span class="key">readme</span> = <span class="val">"README.md</span>
+
+<span class="comment"># FIXED</span>
+<span class="key">readme</span> = <span class="val">"README.md"</span>   <span class="comment"># closing quote was missing</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="faq-card" id="q7">
+      <button class="faq-trigger" onclick="toggle('q7')">
+        <div class="q-num">Q7</div>
+        <div class="q-text">Where does package-mode = false go in pyproject.toml?</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag cause">📌 Config</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="cause-box"><code>package-mode</code> is a Poetry-specific setting. Placing it under the standard <code>[project]</code> table causes an error. It belongs under <code>[tool.poetry]</code>.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># WRONG — not a standard [project] key</span>
+[<span class="key">project</span>]
+<span class="key">package-mode</span> = <span class="val">false</span>
+
+<span class="comment"># CORRECT — Poetry-specific section</span>
+[<span class="key">tool.poetry</span>]
+<span class="key">package-mode</span> = <span class="val">false</span>   <span class="comment"># treats project as app, not distributable library</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section reveal" id="s4">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title">VSCode / RobotCode Extension</div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="faq-card" id="q8">
+      <button class="faq-trigger" onclick="toggle('q8')">
+        <div class="q-num">Q8</div>
+        <div class="q-text">Browser library import fails in VSCode — ModuleNotFoundError</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag error">⛔ Error</span>
+          <span class="tag cause">📌 Wrong Interpreter</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="error-box">Importing library 'Browser' failed: ModuleNotFoundError: No module named '...'</div>
+        <div class="cause-box">VSCode was using the system Python interpreter instead of the <code>.venv</code>. Since <code>robotframework-browser</code> is installed inside the venv only, RobotCode could not find it.</div>
+        <ul class="steps">
+          <li>Press <strong>Cmd+Shift+P</strong> → type <em>Python: Select Interpreter</em></li>
+          <li>Choose the <code>.venv</code> entry or paste the path manually</li>
+          <li>Add the interpreter paths to <code>.vscode/settings.json</code></li>
+          <li>Press <strong>Cmd+Shift+P</strong> → <em>Developer: Reload Window</em></li>
+        </ul>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment">// .vscode/settings.json</span>
+{
+  <span class="key">"python.defaultInterpreterPath"</span>: <span class="val">"/Users/gaorutwe.mosala/Documents/
+    development/robot-framework/robocon2024/.venv/bin/python"</span>,
+  <span class="key">"robot.language-server.python"</span>:   <span class="val">"/Users/gaorutwe.mosala/Documents/
+    development/robot-framework/robocon2024/.venv/bin/python"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="section reveal" id="s5">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title">Robot Framework Test Syntax</div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="faq-card" id="q9">
+      <button class="faq-trigger" onclick="toggle('q9')">
+        <div class="q-num">Q9</div>
+        <div class="q-text">ValueError: Argument 'slowMo' cannot be converted to timedelta</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag error">⛔ Error</span>
+          <span class="tag cause">📌 Invalid Format</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="error-box">ValueError: Argument 'slowMo' got value '0.00:50' that cannot be converted to timedelta: Invalid timedelta string '0.00:50'</div>
+        <div class="cause-box"><code>0.00:50</code> is not a valid timedelta string. The Browser library expects values like <code>50ms</code> or <code>1s</code>. Additionally, the <code>Browser.</code> prefix on keywords is redundant when the library is already declared in Settings.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment">*** Settings ***</span>
+Library    Browser
+
+<span class="comment">*** Test Cases ***</span>
+Test1
+    New Browser    browser=chromium    headless=False    <span class="key">slowMo=50ms</span>
+    New Context    viewport=<span class="val">{"width": 1920, "height": 1080}</span>
+    New Page       url=https://www.saucedemo.com</pre>
+        </div>
+        <div class="note-box">Two fixes applied: <code>slowMo=0.00:50</code> → <code>slowMo=50ms</code> and <code>Browser.New Browser</code> → <code>New Browser</code> (prefix is redundant).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="section reveal" id="s6">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title">Platform Differences</div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="faq-card" id="q10">
+      <button class="faq-trigger" onclick="toggle('q10')">
+        <div class="q-num">Q10</div>
+        <div class="q-text">Windows PowerShell activation command used on Mac</div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="faq-body">
+        <div class="tag-row">
+          <span class="tag cause">📌 Platform</span>
+          <span class="tag fix">✅ Resolved</span>
+        </div>
+        <div class="cause-box">The PowerShell command <code>.\\.venv\\Scripts\\Activate.ps1</code> is Windows-only and will fail on macOS.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">copy</button>
+          <pre><span class="comment"># Windows (PowerShell)</span>
+.\.venv\Scripts\Activate.ps1
+
+<span class="comment"># macOS / Linux (bash / zsh) — use this</span>
+<span class="cmd">$</span> source .venv/bin/activate</pre>
+        </div>
+        <div class="note-box">This must be run every time you open a new terminal session. The venv does not persist across sessions automatically.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span><span class="footer-brand">SBG Quality Engineering</span> — Robot Framework Setup FAQ</span>
+    <span>April 2026 &nbsp;·&nbsp; 10 issues · 6 categories</span>
+  </footer>
+
+</div><!-- /wrapper -->
+
+<script>
+  // ── Toggle FAQ cards ───────────────────────────────────────
+  function toggle(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  // ── Copy code blocks ───────────────────────────────────────
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      btn.textContent = 'copied!';
+      setTimeout(() => btn.textContent = 'copy', 1800);
+    });
+  }
+
+  // ── Scroll reveal ──────────────────────────────────────────
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Open first card in each section by default ─────────────
+  ['q1','q3','q5','q8','q9','q10'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('open');
+  });
+</script>
+</body>
+</html>
