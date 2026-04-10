@@ -1,0 +1,22 @@
+[project]
+name = "robocon2024"
+version = "0.1.0"
+description = "Test project for robot framework for 2026 April"
+authors = [
+    {name = "GA"}
+]
+license = "GNU V3"
+readme = "README.md"                                # Path to project readme file
+requires-python = ">=3.13"                          # Minimum Python version required
+dependencies = [
+    "robotframework (>=7.4.2,<8.0.0)",              # Core Robot Framework test engine
+    "robotframework-browser (>=19.14.2,<20.0.0)",   # Browser/Playwright automation library
+    "pyyaml (>=6.0.3,<7.0.0)"                       # YAML parser for test data/config files
+]
+
+[tool.poetry]
+package-mode = false                                # Disables package mode — treats project as an app, not a distributable library
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]            # Poetry build backend dependency
+build-backend = "poetry.core.masonry.api"           # Tells pip/build tools to use Poetry as the build backend
