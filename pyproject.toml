@@ -7,7 +7,7 @@ authors = [
 ]
 license = "GNU V3"
 readme = "README.md"                                # Path to project readme file
-requires-python = ">=3.13"                          # Minimum Python version required
+requires-python = ">=3.13,<4"                       # Upper bound added — prevents Python 4 compatibility conflict
 dependencies = [
     "robotframework (>=7.4.2,<8.0.0)",              # Core Robot Framework test engine
     "robotframework-browser (>=19.14.2,<20.0.0)",   # Browser/Playwright automation library
@@ -19,4 +19,4 @@ package-mode = false                                # Disables package mode — 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]            # Poetry build backend dependency
-build-backend = "poetry.core.masonry.api"           # Tells pip/build tools to use Poetry as the build backend
+build-backend = "poetry.core.masonry.api"           # Tells pip/build tools to use Poetry as the build backendclear
